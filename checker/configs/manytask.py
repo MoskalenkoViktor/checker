@@ -217,6 +217,8 @@ class ManytaskDeadlinesConfig(CustomBaseModel):
                 for left, right in zip(left_bound, right_bound):
                     if left + timedelta(days=self.window or 0) > right:
                         raise ValueError("window is too large")
+                if not all(steps.keys()):
+                    raise ValueError("zero percent is not valid")
         return self
 
     def find_task(self, task_name: str) -> tuple[ManytaskGroupConfig, ManytaskTaskConfig]:

@@ -575,3 +575,21 @@ class TestManytaskDeadlinesConfig:
         )
         assert config.deadlines.value == deadline
         assert config.window == window
+    
+    def test_not_valid_step(self) -> None:
+        with pytest.raises(ValidationError):
+            ManytaskDeadlinesConfig(
+                timezone="Europe/Moscow",
+                deadlines="interpolate",
+                window=7,
+                schedule=[
+                    {
+                        "group": "group",
+                        "start": "2020-01-01 00:00",
+                        "end": "2020-05-01 00:00",
+                        "steps": {
+                            0.0: "2020-03-01 00:00",
+                        },
+                    },
+                ],
+            )

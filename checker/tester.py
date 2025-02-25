@@ -114,7 +114,7 @@ class Tester:
             if timestamp <= ts:
                 if self.deadlines_type == ManytaskDeadlinesType.HARD:
                     return percent
-                return self._calc_interpolated_percent(percent, timestamp, prev_percent, prev_timestamp)
+                return self._calc_interpolated_percent(percent, timestamp, prev_percent, prev_timestamp) / percent  # hack for manytask
             prev_percent, prev_timestamp = percent, ts
         return 0.0
 

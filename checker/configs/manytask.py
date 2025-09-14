@@ -2,35 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Optional, Union
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import AnyUrl, Field, field_validator, model_validator
+from pydantic import AnyUrl, BaseModel, Field, field_validator, model_validator
 
 from .utils import CustomBaseModel, YamlLoaderMixin
-
-
-class ManytaskSettingsConfig(CustomBaseModel):
-    """Manytask settings."""
-
-    course_name: str
-    gitlab_base_url: AnyUrl
-    public_repo: str
-    students_group: str
-
-
-class ManytaskUiConfig(CustomBaseModel):
-    task_url_template: str  # $GROUP_NAME $TASK_NAME vars are available
-    links: dict[str, str] = Field(default_factory=dict)
-
-    @field_validator("task_url_template")
-    @classmethod
-    def check_task_url_template(cls, data: str | None) -> str | None:
-        if data is not None and (not data.startswith("http://") and not data.startswith("https://")):
-            raise ValueError("task_url_template should be http or https")
-        # if data is not None and "$GROUP_NAME" not in data and "$TASK_NAME" not in data:
-        #     raise ValueError("task_url should contain at least one of $GROUP_NAME and $TASK_NAME vars")
-        return data
 
 
 class ManytaskDeadlinesType(Enum):
@@ -292,15 +269,11 @@ class ManytaskDeadlinesConfig(CustomBaseModel):
         return self.max_score(started=True, now=self.get_now_with_timezone())
 
 
-class ManytaskConfig(CustomBaseModel, YamlLoaderMixin["ManytaskConfig"]):
+class ManytaskConfig(BaseModel, YamlLoaderMixin["ManytaskConfig"]):
     """Manytask configuration."""
 
     version: int  # if config exists, version is always present
-
-    settings: ManytaskSettingsConfig
-    ui: ManytaskUiConfig
     deadlines: ManytaskDeadlinesConfig
-    grades: Optional[Dict[str, Any]] = Field(default=None, exclude=True)
 
     def get_groups(
         self,
